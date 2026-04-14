@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  api:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: monitoring
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+
+  worker:
+    build: .
+    command: celery -A tasks.celery worker --loglevel=info
+    depends_on:
+      - redis
+      - db
